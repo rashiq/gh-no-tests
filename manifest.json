@@ -1,0 +1,16 @@
+{
+  "manifest_version": 3,
+  "name": "gh-no-tests",
+  "version": "1.0.0",
+  "description": "Mark test files as Viewed and collapse their diffs on GitHub.",
+  "permissions": ["storage"],
+  "action": {
+    "default_title": "gh-no-tests",
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [{
+    "matches": ["https://github.com/*"],
+    "js": ["core.js", "content.js"],
+    "run_at": "document_idle"
+  }]
+}
