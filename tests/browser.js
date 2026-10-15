@@ -14,21 +14,31 @@
     results.append(li);
     condition ? passed++ : failed++;
   }
-  function file(path, { classic = false, checked = false, collapseOnView = false, disabled = false, comment = false } = {}) {
+  function file(path, { classic = false, checked = false, collapseOnView = false, disabled = false, comment = false, labelledToggle = false } = {}) {
     const section = document.createElement("section");
     const header = document.createElement("div");
     const body = document.createElement("pre");
     body.textContent = "+ changed file contents";
     if (comment) section.className = "markdown-body";
     const collapse = document.createElement("button");
-    collapse.setAttribute("aria-label", "Collapse file");
-    collapse.textContent = "Collapse file";
+    const tooltip = document.createElement("span");
+    tooltip.id = `collapse-${serial++}`;
+    tooltip.setAttribute("aria-hidden", "true");
+    function setCollapseLabel(text) {
+      if (labelledToggle) {
+        collapse.setAttribute("aria-labelledby", tooltip.id);
+        tooltip.textContent = text;
+      } else {
+        collapse.setAttribute("aria-label", text);
+        collapse.textContent = text;
+      }
+    }
+    setCollapseLabel("Collapse file");
     let collapseCount = 0;
     collapse.addEventListener("click", () => {
       const hidden = !body.hidden;
       body.hidden = hidden;
-      collapse.setAttribute("aria-label", hidden ? "Expand file" : "Collapse file");
-      collapse.textContent = hidden ? "Expand file" : "Collapse file";
+      setCollapseLabel(hidden ? "Expand file" : "Collapse file");
       collapseCount++;
     });
     const heading = document.createElement("h3");
@@ -60,7 +70,7 @@
       }
       if (collapseOnView && GitHubTestViewed.viewState(viewed) && !body.hidden) collapse.click();
     });
-    header.append(collapse, heading, viewed);
+    header.append(collapse, tooltip, heading, viewed);
     if (classic) {
       const label = document.createElement("label");
       label.htmlFor = viewed.id;
@@ -69,13 +79,31 @@
     }
     section.append(header, body);
     fixtures.append(section);
-    return { section, header, viewed, collapse, body, clicks: () => clickCount, collapses: () => collapseCount };
+    return { section, header, viewed, collapse, tooltip, body, clicks: () => clickCount, collapses: () => collapseCount };
   }
   const controller = GitHubTestViewed.createController({
     document, getUrl: () => url, MutationObserver,
     setTimeout: window.setTimeout.bind(window), clearTimeout: window.clearTimeout.bind(window)
   });
   try {
+    const linked = file("pkg/internal_handler_intg_test.go", { labelledToggle: true });
+    const linkedSource = file("pkg/internal_handler.go", { labelledToggle: true });
+    const linkedPrior = file("pkg/prior_test.go", { labelledToggle: true, checked: true });
+    await delay();
+    check("Tooltip label permits a Viewed click", linked.clicks() === 1 && GitHubTestViewed.viewState(linked.viewed));
+    check("Tooltip label permits collapse", linked.body.hidden);
+    check("Tooltip label leaves source unchanged", linkedSource.clicks() === 0 && !linkedSource.body.hidden);
+    check("Tooltip label collapses a viewed file", linkedPrior.body.hidden && linkedPrior.clicks() === 0);
+    linkedPrior.collapse.click();
+    await delay();
+    check("Tooltip label keeps manual expansion", !linkedPrior.body.hidden);
+    const lateLabel = file("pkg/late_label_test.go", { labelledToggle: true });
+    lateLabel.tooltip.firstChild.data = "";
+    await delay();
+    check("Missing tooltip label leaves the file unchanged", lateLabel.clicks() === 0);
+    lateLabel.tooltip.firstChild.data = "Collapse file";
+    await delay();
+    check("Delayed tooltip text permits Viewed", lateLabel.clicks() === 1 && lateLabel.body.hidden);
     const modern = file("pkg/client/network_test.go");
     const source = file("pkg/client/network.go");
     const classic = file("src/test_client.py", { classic: true, collapseOnView: true });

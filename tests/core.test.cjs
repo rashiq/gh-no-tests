@@ -8,6 +8,7 @@ for (const name of [
   'tests/helpers.json', 'src/__tests__/button.tsx', 'src/__snapshots__/ui.snap',
   'pkg/client/testdata/expected_config.yaml',
   'pkg/client/network_test.go', 'pkg/client/lifecycle_intg_test.go',
+  'pkg/internal_handler_intg_test.go',
   'src/button.test.tsx', 'src/button.spec.ts', 'cypress/e2e/login.cy.ts',
   'pkg/test_parser.py', 'pkg/tests.py', 'pkg/parser_test.py', 'spec/model_spec.rb',
   'src/UserTests.cs', 'src/UserTest.java', 'src/TestUser.java', 'src/UserSpec.kt',

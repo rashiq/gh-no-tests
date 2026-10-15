@@ -48,6 +48,19 @@
     return value === "true" ? true : value === "false" ? false : null;
   }
 
+  function controlLabel(element) {
+    const ids = (element.getAttribute("aria-labelledby") || "").split(/\s+/).filter(Boolean);
+    const linked = ids.map(id => element.ownerDocument.getElementById(id)?.textContent || "").join(" ").trim();
+    return (linked || element.getAttribute("aria-label") || element.getAttribute("title") || "").replace(/\s+/g, " ").trim();
+  }
+
+  function fileToggle(header, collapseOnly = false) {
+    return Array.from(header.querySelectorAll('button[aria-label], button[aria-labelledby]')).find(button => {
+      const label = controlLabel(button);
+      return label === "Collapse file" || (!collapseOnly && label === "Expand file");
+    });
+  }
+
   function fileContext(control) {
     if (!viewedControl(control)) return null;
     for (let header = control.parentElement, depth = 0; header && depth < 8; header = header.parentElement, depth++) {
@@ -64,7 +77,7 @@
       }
 
       // New headers use a file link and collapse button.
-      const collapse = header.querySelector('button[aria-label="Collapse file"], button[aria-label="Expand file"]');
+      const collapse = fileToggle(header);
       const links = header.querySelectorAll(HEADINGS);
       if (collapse && links.length === 1) {
         const link = links[0];
@@ -80,7 +93,7 @@
   }
 
   function collapseFile(header) {
-    const button = header.querySelector('button[aria-label="Collapse file"], .js-details-target[aria-expanded="true"]');
+    const button = fileToggle(header, true) || header.querySelector('.js-details-target[aria-expanded="true"]');
     if (button && usable(button)) button.click();
   }
 
@@ -163,8 +176,8 @@
 
     const observer = new MutationObserver(schedule);
     observer.observe(document.documentElement, {
-      subtree: true, childList: true, attributes: true,
-      attributeFilter: ["aria-pressed", "aria-checked", "aria-label", "aria-disabled", "disabled", "checked", "data-path", "title", "href", "hidden", "inert", "aria-hidden"]
+      subtree: true, childList: true, characterData: true, attributes: true,
+      attributeFilter: ["aria-pressed", "aria-checked", "aria-label", "aria-labelledby", "aria-disabled", "disabled", "checked", "data-path", "title", "href", "hidden", "inert", "aria-hidden"]
     });
     document.addEventListener("click", onClick, true);
     document.addEventListener("turbo:load", schedule);
