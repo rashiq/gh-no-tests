@@ -36,7 +36,7 @@
     try {
       const url = new URL(value);
       if (url.origin !== "https://github.com") return null;
-      if (!/^\/[^/]+\/[^/]+\/pull\/\d+\/(?:files|changes)(?:\/[^/]+)*\/?$/.test(url.pathname)) return null;
+      if (!/^\/[^/]+\/[^/]+\/pull\/\d+\/changes(?:\/[^/]+)*\/?$/.test(url.pathname)) return null;
       // Keep choices across filters and anchors.
       return url.pathname.replace(/\/$/, "");
     } catch {

@@ -161,9 +161,13 @@
     url = "https://github.com/example/project/pull/2/files";
     document.dispatchEvent(new Event("turbo:load"));
     await delay();
+    check("Files route stays unchanged", discussion.clicks() === 0);
+    url = "https://github.com/example/project/pull/2/changes";
+    document.dispatchEvent(new Event("turbo:load"));
+    await delay();
     check("SPA entry into a diff starts processing", discussion.clicks() === 1);
     fixtures.replaceChildren();
-    url = "https://example.com/example/project/pull/2/files";
+    url = "https://example.com/example/project/pull/2/changes";
     const otherHost = file("tests/host.py");
     await delay();
     check("Other host stays unchanged", otherHost.clicks() === 0);

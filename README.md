@@ -1,6 +1,6 @@
 # gh-no-tests
 
-This Chrome extension marks test files as **Viewed** and collapses their diffs on GitHub.
+Mark test files as **Viewed** and collapse their diffs on GitHub pull-request **Changes** pages.
 
 <img src="assets/viewed.png" alt="Test files marked as Viewed" width="600">
 

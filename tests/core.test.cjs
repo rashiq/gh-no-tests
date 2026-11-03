@@ -59,13 +59,27 @@ for (const name of [
   'README.md', '', null, undefined
 ]) test(`leaves ${String(name)}`, () => assert.equal(isTestFile(name), false));
 
-test('accepts both diff routes and commit comparisons', () => {
-  for (const suffix of ['files', 'changes', 'files/abcdef', 'changes/abcdef..123456']) {
+test('accepts Changes routes and commit comparisons', () => {
+  for (const suffix of ['changes', 'changes/abcdef', 'changes/abcdef..123456']) {
     assert.equal(diffPageKey(`https://github.com/org/repo/pull/42/${suffix}?w=1#diff-abc`), `/org/repo/pull/42/${suffix}`);
   }
 });
 test('rejects other pages and origins', () => {
-  for (const url of ['https://github.com/org/repo/pull/42', 'https://github.com/org/repo/commit/abc', 'https://github.com/org/repo/pull/42/checks', 'https://example.com/org/repo/pull/42/files', 'https://github.com.evil.test/org/repo/pull/42/files', 'http://github.com/org/repo/pull/42/files', 'invalid']) assert.equal(diffPageKey(url), null);
+  for (const url of [
+    'https://github.com/org/repo/pull/42',
+    'https://github.com/org/repo/pull/42/files',
+    'https://github.com/org/repo/pull/42/files/abcdef',
+    'https://github.com/org/repo/pull/42/checks',
+    'https://github.com/org/repo/pull/42/changeset',
+    'https://github.com/org/repo/pull/new/changes',
+    'https://github.com/org/repo/issues/42/changes',
+    'https://github.com/org/repo/commit/abc',
+    'https://github.com/org/pull/42/changes',
+    'https://example.com/org/repo/pull/42/changes',
+    'https://github.com.evil.test/org/repo/pull/42/changes',
+    'http://github.com/org/repo/pull/42/changes',
+    'invalid'
+  ]) assert.equal(diffPageKey(url), null);
 });
 test('manifest limits permissions and references existing files', () => {
   const base = path.join(__dirname, '..');

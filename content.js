@@ -14,14 +14,30 @@
   try {
     const saved = await chrome.storage.local.get({ enabled: true });
     if (!settingsChanged) enabled = saved.enabled === true;
-    controller = GitHubTestViewed.createController({
-      document,
-      getUrl: () => location.href,
-      MutationObserver,
-      setTimeout: window.setTimeout.bind(window),
-      clearTimeout: window.clearTimeout.bind(window)
-    });
-    controller.setEnabled(enabled);
+    function syncController() {
+      if (!GitHubTestViewed.diffPageKey(location.href)) {
+        controller?.stop();
+        controller = undefined;
+        return;
+      }
+      if (!controller) {
+        controller = GitHubTestViewed.createController({
+          document,
+          getUrl: () => location.href,
+          MutationObserver,
+          setTimeout: window.setTimeout.bind(window),
+          clearTimeout: window.clearTimeout.bind(window)
+        });
+      }
+      controller.setEnabled(enabled);
+    }
+    // GitHub can enter or leave a diff without a document reload.
+    document.addEventListener("turbo:load", syncController);
+    document.addEventListener("pjax:end", syncController);
+    window.addEventListener("popstate", syncController);
+    window.addEventListener("pageshow", syncController);
+    window.navigation?.addEventListener("currententrychange", syncController);
+    syncController();
   } catch {
     chrome.storage.onChanged.removeListener(onChange);
     console.warn("gh-no-tests could not read its settings. Reload this tab.");
