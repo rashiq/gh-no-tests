@@ -13,10 +13,21 @@
     if (typeof value !== "string" || !value) return false;
     const parts = value.replace(/\\/g, "/").split("/");
     const name = parts.pop();
-    if (parts.some(part => /^(?:tests?|specs?|__tests__|__snapshots__|testdata|e2e|cypress|(?:unit|integration|acceptance)[_-]tests?)$/i.test(part))) return true;
-    if (/\.(?:test|spec|cy)\.[^.]+$/i.test(name)) return true;
-    if (/(?:^|_)tests?\.(?:go|py|rb|rs|exs?|php|c|cc|cpp|cxx|h|hpp|sh|clj|cljs|dart)$/i.test(name)) return true;
-    if (/^test_.+\.(?:py|rb|php|c|cc|cpp|sh)$/i.test(name)) return true;
+    if (parts.some(part =>
+      /^(?:tests?|specs?|__tests__|__snapshots__|__fixtures__|test[_-]?(?:data|utils?|helpers?|fixtures?)|e2e|cypress|evals|hurl|k6|(?:unit|integration|acceptance|functional|e2e)[_-]?tests?)$/i.test(part) ||
+      /[-_]e2e$/i.test(part) ||
+      /\.(?:test|spec)\.[cm]?[jt]sx?-snapshots$/i.test(part)
+    )) return true;
+    if (/\.(?:test|spec|cy|eval|bench|benchmark)\.[^.]+(?:\.snap)?$/i.test(name)) return true;
+    if (/\.hurl$/i.test(name) || /\.tftest\.(?:hcl|json)$/i.test(name)) return true;
+    if (/(?:^|[_-])tests?\.(?:go|py|rb|rs|exs?|php|c|cc|cpp|cxx|h|hpp|sh|clj|cljs|dart|[cm]?[jt]sx?)$/i.test(name)) return true;
+    if (/^test[_-].+\.(?:py|rb|php|c|cc|cpp|sh|[cm]?[jt]sx?)$/i.test(name)) return true;
+    if (/^(?:conftest\.py|pytest\.ini)$/i.test(name)) return true;
+    if (/^(?:vitest|jest|playwright|cypress)\.(?:config|setup|global-setup|global-teardown)\.[cm]?[jt]s$/i.test(name)) return true;
+    if (/^playwright[-_].+\.[cm]?[jt]s$/i.test(name)) return true;
+    if (/^(?:bench|benchmark)[-_].+\.(?:[cm]?[jt]s|py|sh)$/i.test(name)) return true;
+    if (/[-_](?:bench|benchmark)\.(?:[cm]?[jt]s|py|sh)$/i.test(name)) return true;
+    if (/(?:^|_)test[_-](?:utils?|helpers?)\.(?:go|py)$/i.test(name)) return true;
     if (/_spec\.rb$/i.test(name)) return true;
     return /^(?:Test[A-Z].*|.+(?:Test|Tests|Spec))\.(?:java|kt|kts|scala|cs|fs|swift|php)$/.test(name);
   }
