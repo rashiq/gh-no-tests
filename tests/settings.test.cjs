@@ -31,11 +31,11 @@ test('popup reads and saves the off setting', async () => {
   ui.input.checked = true;
   await ui.change();
   assert.equal(saved.enabled, true);
-  assert.match(ui.status.textContent, /^On/);
+  assert.equal(ui.status.textContent, '');
   ui.input.checked = false;
   await ui.change();
   assert.equal(saved.enabled, false);
-  assert.match(ui.status.textContent, /^Off/);
+  assert.equal(ui.status.textContent, '');
 });
 test('popup restores its state after a save error', async () => {
   const ui = popup({ get: async defaults => defaults, set: async () => { throw Error('storage failed'); } });
