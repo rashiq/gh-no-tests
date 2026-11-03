@@ -2,7 +2,7 @@
 
 This Chrome extension marks test files as **Viewed** and collapses their diffs on GitHub.
 
-![Test files marked as Viewed](assets/viewed.png)
+<img src="assets/viewed.png" alt="Test files marked as Viewed" width="600">
 
 ```sh
 git clone https://github.com/rashiq/gh-no-tests.git
